@@ -14,7 +14,7 @@ export default function Login() {
     setError('');
 
     try {
-      const response = await axios.post('/api/auth/login', {
+      const response = await api.post('/api/auth/login', {
         email: formData.email.trim(),
         password: formData.password
       });

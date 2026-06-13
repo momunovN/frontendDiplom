@@ -13,7 +13,7 @@ console.log('API URL:', import.meta.env.VITE_API_URL);
     const fetchData = async () => {
       try {
         // 1. Сеансы (только будущие)
-        const sessionsRes = await axios.get('/api/sessions');
+        const sessionsRes = await api.get('/api/sessions');
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
@@ -24,7 +24,7 @@ console.log('API URL:', import.meta.env.VITE_API_URL);
         setSessions(futureSessions);
 
         // 2. Популярные фильмы из TMDB
-        const tmdbRes = await axios.get('https://api.themoviedb.org/3/movie/popular', {
+        const tmdbRes = await api.get('https://api.themoviedb.org/3/movie/popular', {
           params: {
             api_key: import.meta.env.VITE_TMDB_API_KEY,
             language: 'ru-RU',

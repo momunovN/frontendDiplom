@@ -12,7 +12,7 @@ export default function Register() {
     setLoading(true);
 
     try {
-      const res = await axios.post('/api/auth/register', formData);
+      const res = await api.post('/api/auth/register', formData);
       
       alert('✅ Регистрация прошла успешно! Теперь войдите в аккаунт.');
       navigate('/login');

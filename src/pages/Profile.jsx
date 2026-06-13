@@ -23,7 +23,7 @@ export default function Profile() {
     }
 
     try {
-      const res = await axios.get('/api/bookings/my', {
+      const res = await api.get('/api/bookings/my', {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -46,7 +46,7 @@ export default function Profile() {
 
     const token = localStorage.getItem('token');
     try {
-      await axios.delete(`/api/bookings/${bookingId}`, {
+      await api.delete(`/api/bookings/${bookingId}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }

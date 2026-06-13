@@ -35,7 +35,7 @@ export default function Movies() {
   useEffect(() => {
     const fetchMovies = async () => {
       try {
-        const res = await axios.get('https://api.themoviedb.org/3/movie/now_playing', {
+        const res = await api.get('https://api.themoviedb.org/3/movie/now_playing', {
           params: {
             api_key: TMDB_API_KEY,
             language: 'ru-RU',

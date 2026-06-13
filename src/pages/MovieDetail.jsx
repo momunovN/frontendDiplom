@@ -21,13 +21,13 @@ export default function MovieDetail() {
     const fetchData = async () => {
       try {
         // Фильм из TMDB
-        const movieRes = await axios.get(`https://api.themoviedb.org/3/movie/${id}`, {
+        const movieRes = await api.get(`https://api.themoviedb.org/3/movie/${id}`, {
           params: { api_key: TMDB_API_KEY, language: 'ru-RU' }
         });
         setMovie(movieRes.data);
 
         // Сеансы только для этого фильма
-        const sessionsRes = await axios.get(`/api/sessions?movieId=${id}`);
+        const sessionsRes = await api.get(`/api/sessions?movieId=${id}`);
         setSessions(sessionsRes.data || []);
       } catch (err) {
         console.error(err);
@@ -52,7 +52,7 @@ const handleBookSeats = async () => {
   }
 
   try {
-    await axios.post('/api/bookings', {
+    await api.post('/api/bookings', {
       sessionId: selectedSession._id,
       seats: selectedSeats,                    // массив строк, например ["5-12", "5-13"]
       totalPrice: selectedSeats.length * selectedSession.price

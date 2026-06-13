@@ -27,7 +27,7 @@ export default function AdminDashboard() {
 
   const loadSessions = async () => {
     try {
-      const res = await axios.get('/api/sessions');
+      const res = await api.get('/api/sessions');
       setSessions(res.data || []);
     } catch (err) {
       console.error(err);
@@ -42,7 +42,7 @@ export default function AdminDashboard() {
       else if (tab === 'new') url = 'https://api.themoviedb.org/3/movie/now_playing';
       else if (tab === 'highRated') url = 'https://api.themoviedb.org/3/movie/top_rated';
 
-      const res = await axios.get(url, {
+      const res = await api.get(url, {
         params: { api_key: TMDB_API_KEY, language: 'ru-RU', page: 1 }
       });
 
@@ -77,7 +77,7 @@ export default function AdminDashboard() {
     setLoading(true);
     try {
       if (editingSession) {
-        await axios.put(`/api/sessions/${editingSession._id}`, {
+        await api.put(`/api/sessions/${editingSession._id}`, {
           date: newSession.date,
           time: newSession.time,
           hall: newSession.hall,
@@ -86,7 +86,7 @@ export default function AdminDashboard() {
         });
         showToast("Сеанс успешно обновлён!");
       } else {
-        await axios.post('/api/sessions', {
+        await api.post('/api/sessions', {
           movieId: selectedMovie.id,
           movieTitle: selectedMovie.title,
           date: newSession.date,
@@ -134,7 +134,7 @@ export default function AdminDashboard() {
   const deleteSession = async (id, movieTitle) => {
     if (!window.confirm(`Удалить сеанс "${movieTitle}"?`)) return;
     try {
-      await axios.delete(`/api/sessions/${id}`);
+      await api.delete(`/api/sessions/${id}`);
       showToast("Сеанс удалён");
       loadSessions();
     } catch (err) {
