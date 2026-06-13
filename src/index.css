@@ -1,0 +1,14 @@
+@import "tailwindcss";
+
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.movie-card {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.movie-card:hover {
+  transform: translateY(-12px);
+  box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.4);
+}
