@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import MovieCard from '../components/MovieCard';
-import axios from 'axios';
+import api from '../api/axios';
 import RainCarousel from '../components/RainCarousel';
 
 export default function Home() {
@@ -8,7 +8,7 @@ export default function Home() {
   const [popularMovies, setPopularMovies] = useState([]);   // Для карусели и секции "В прокате"
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
+console.log('API URL:', import.meta.env.VITE_API_URL);
   useEffect(() => {
     const fetchData = async () => {
       try {

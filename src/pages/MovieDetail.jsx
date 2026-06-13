@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../api/axios';
 import SeatMap from '../components/SeatMap';
 
 const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY;

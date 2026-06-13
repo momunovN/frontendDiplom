@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../api/axios';
 import Toast from '../components/Toast';
 
 const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY;

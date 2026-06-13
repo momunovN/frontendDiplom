@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../api/axios';
 
 const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 
