@@ -52,7 +52,7 @@ const handleBookSeats = async () => {
   }
 
   try {
-    await axios.post('http://localhost:5000/api/bookings', {
+    await axios.post('/api/bookings', {
       sessionId: selectedSession._id,
       seats: selectedSeats,                    // массив строк, например ["5-12", "5-13"]
       totalPrice: selectedSeats.length * selectedSession.price

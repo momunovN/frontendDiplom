@@ -13,7 +13,7 @@ export default function Home() {
     const fetchData = async () => {
       try {
         // 1. Сеансы (только будущие)
-        const sessionsRes = await axios.get('http://localhost:5000/api/sessions');
+        const sessionsRes = await axios.get('/api/sessions');
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
