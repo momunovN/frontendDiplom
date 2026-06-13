@@ -9,12 +9,15 @@ export default defineConfig({
   ],
   server: {
     port: 5173,
+    // Proxy нужен только для локальной разработки
     proxy: {
       '/api': {
-        target: 'https://kino-book-server.onrender.com',
+        target: 'http://localhost:5000',   // ← для локалки
         changeOrigin: true,
-        secure: false,
       }
     }
-  }
+  },
+  // build: {
+  //   outDir: 'dist'
+  // }
 })
