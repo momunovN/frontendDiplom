@@ -1,6 +1,11 @@
 import { useEffect, useState } from 'react';
 import MovieCard from '../components/MovieCard';
+
+
 import api from '../api/axios';
+import tmdbApi from '../api/tmdb';
+
+
 import RainCarousel from '../components/RainCarousel';
 
 export default function Home() {
@@ -24,7 +29,7 @@ console.log('API URL:', import.meta.env.VITE_API_URL);
         setSessions(futureSessions);
 
         // 2. Популярные фильмы из TMDB
-        const tmdbRes = await api.get('https://api.themoviedb.org/3/movie/popular', {
+        const tmdbRes = await tmdbApi.get('https://api.themoviedb.org/3/movie/popular', {
           params: {
             api_key: import.meta.env.VITE_TMDB_API_KEY,
             language: 'ru-RU',

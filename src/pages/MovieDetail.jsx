@@ -1,6 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+
+
 import api from '../api/axios';
+import tmdbApi from '../api/tmdb';
+
+
 import SeatMap from '../components/SeatMap';
 
 const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY;
@@ -21,7 +26,7 @@ export default function MovieDetail() {
     const fetchData = async () => {
       try {
         // Фильм из TMDB
-        const movieRes = await api.get(`https://api.themoviedb.org/3/movie/${id}`, {
+        const movieRes = await tmdbApi.get(`https://api.themoviedb.org/3/movie/${id}`, {
           params: { api_key: TMDB_API_KEY, language: 'ru-RU' }
         });
         setMovie(movieRes.data);

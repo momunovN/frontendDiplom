@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
+import tmdbApi from '../api/axios';
 
 const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 
@@ -35,7 +36,7 @@ export default function Movies() {
   useEffect(() => {
     const fetchMovies = async () => {
       try {
-        const res = await api.get('https://api.themoviedb.org/3/movie/now_playing', {
+        const res = await tmdbApi.get('https://api.themoviedb.org/3/movie/now_playing', {
           params: {
             api_key: TMDB_API_KEY,
             language: 'ru-RU',
