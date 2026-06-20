@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
-import tmdbApi from '../api/tmdb';
 
-const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY;
+
 
 // Маппинг жанров TMDB (можно расширить)
 const genreMap = {
@@ -31,34 +30,23 @@ const genreMap = {
 export default function Movies() {
   const [moviesByGenre, setMoviesByGenre] = useState({});
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchMovies = async () => {
       try {
-        const res = await tmdbApi.get('https://api.themoviedb.org/3/movie/now_playing', {
-          params: {
-            api_key: TMDB_API_KEY,
-            language: 'ru-RU',
-            page: 1
-          }
-        });
+        // Теперь идём через свой бэкенд
+        const res = await api.get('/api/tmdb/now_playing');
 
         const movies = res.data.results || [];
 
-        // Группируем фильмы по жанрам
+        // Группировка по жанрам (твой код оставь)
         const grouped = {};
-
         movies.forEach(movie => {
           if (!movie.genre_ids || movie.genre_ids.length === 0) return;
-
           movie.genre_ids.forEach(genreId => {
             const genreName = genreMap[genreId];
             if (!genreName) return;
-
-            if (!grouped[genreName]) {
-              grouped[genreName] = [];
-            }
+            if (!grouped[genreName]) grouped[genreName] = [];
             grouped[genreName].push(movie);
           });
         });

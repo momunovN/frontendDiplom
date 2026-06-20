@@ -1,23 +1,20 @@
 import { useEffect, useState } from 'react';
 import MovieCard from '../components/MovieCard';
-
-
 import api from '../api/axios';
-import tmdbApi from '../api/tmdb';
-
-
 import RainCarousel from '../components/RainCarousel';
 
 export default function Home() {
   const [sessions, setSessions] = useState([]);
-  const [popularMovies, setPopularMovies] = useState([]);   // Для карусели и секции "В прокате"
+  const [popularMovies, setPopularMovies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-console.log('API URL:', import.meta.env.VITE_API_URL);
+
+  console.log('API URL:', import.meta.env.VITE_API_URL);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // 1. Сеансы (только будущие)
+        // 1. Сеансы
         const sessionsRes = await api.get('/api/sessions');
         const today = new Date();
         today.setHours(0, 0, 0, 0);
@@ -28,16 +25,9 @@ console.log('API URL:', import.meta.env.VITE_API_URL);
 
         setSessions(futureSessions);
 
-        // 2. Популярные фильмы из TMDB
-        const tmdbRes = await tmdbApi.get('https://api.themoviedb.org/3/movie/popular', {
-          params: {
-            api_key: import.meta.env.VITE_TMDB_API_KEY,
-            language: 'ru-RU',
-            page: 1
-          }
-        });
-
-        const popular = tmdbRes.data.results.slice(0, 18); // берём побольше
+        // 2. Популярные фильмы (через прокси бэкенда)
+        const tmdbRes = await api.get('/api/tmdb/popular');
+        const popular = tmdbRes.data.results?.slice(0, 18) || [];
         setPopularMovies(popular);
 
       } catch (err) {
