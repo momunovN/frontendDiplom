@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 
 import api from '../api/axios';
-import tmdbApi from '../api/axios';
+import tmdbApi from '../api/tmdb';
 
 import Toast from '../components/Toast';
 

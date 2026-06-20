@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 
 import api from '../api/axios';
-import tmdbApi from '../api/axios';
+import tmdbApi from '../api/tmdb';
 
 
 export default function Login() {
