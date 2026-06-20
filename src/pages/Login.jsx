@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+
 import api from '../api/axios';
+import tmdbApi from '../api/axios';
+
 
 export default function Login() {
   const [formData, setFormData] = useState({ email: '', password: '' });

@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react';
+
 import api from '../api/axios';
+import tmdbApi from '../api/axios';
+
 import Toast from '../components/Toast';
 
 const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY;
@@ -42,7 +45,7 @@ export default function AdminDashboard() {
       else if (tab === 'new') url = 'https://api.themoviedb.org/3/movie/now_playing';
       else if (tab === 'highRated') url = 'https://api.themoviedb.org/3/movie/top_rated';
 
-      const res = await api.get(url, {
+      const res = await tmdbApi.get(url, {
         params: { api_key: TMDB_API_KEY, language: 'ru-RU', page: 1 }
       });
 
