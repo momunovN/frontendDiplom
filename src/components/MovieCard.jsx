@@ -5,6 +5,10 @@ export default function MovieCard({ movie }) {
     ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` 
     : 'https://via.placeholder.com/500x750/27272a/ffffff?text=Нет+постера';
 
+  const handleImageError = (e) => {
+    e.target.src = 'https://via.placeholder.com/500x750/27272a/ffffff?text=Нет+постера';
+  };
+
   return (
     <Link 
       to={`/movie/${movie.id}`} 
@@ -15,6 +19,7 @@ export default function MovieCard({ movie }) {
           src={posterUrl} 
           alt={movie.title} 
           className="w-full aspect-2/3 object-cover group-hover:scale-105 transition-transform duration-500"
+          onError={handleImageError}
         />
         
         {movie.vote_average && (
@@ -28,18 +33,8 @@ export default function MovieCard({ movie }) {
         <h3 className="text-base font-semibold line-clamp-2 text-white group-hover:text-red-500 transition-colors mb-1.5">
           {movie.title}
         </h3>
-        
         <div className="flex justify-between text-xs text-zinc-400">
-          <span>
-            {movie.release_date ? movie.release_date.substring(0, 4) : '—'}
-          </span>
-          {movie.genres && (
-            <span className="line-clamp-1">
-              {Array.isArray(movie.genres) 
-                ? movie.genres.slice(0, 2).join(', ') 
-                : ''}
-            </span>
-          )}
+          <span>{movie.release_date ? movie.release_date.substring(0, 4) : '-'}</span>
         </div>
       </div>
     </Link>

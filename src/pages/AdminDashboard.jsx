@@ -3,7 +3,7 @@ import api from '../api/axios';
 import Toast from '../components/Toast';
 
 export default function AdminDashboard() {
-  const [activeTab, setActiveTab] = useState('popular'); // popular | new | highRated
+  const [activeTab, setActiveTab] = useState('popular');
   const [movies, setMovies] = useState([]);
   const [selectedMovie, setSelectedMovie] = useState(null);
   const [editingSession, setEditingSession] = useState(null);
@@ -24,7 +24,6 @@ export default function AdminDashboard() {
     setTimeout(() => setToast(null), 3000);
   };
 
-  // Загрузка сеансов
   const loadSessions = async () => {
     try {
       const res = await api.get('/api/sessions');
@@ -34,7 +33,6 @@ export default function AdminDashboard() {
     }
   };
 
-  // Загрузка фильмов через прокси бэкенда
   const loadMovies = async (tab) => {
     setLoading(true);
     try {
@@ -49,7 +47,6 @@ export default function AdminDashboard() {
       if (tab === 'highRated') {
         results = results.filter(m => m.vote_average >= 7.0);
       }
-
       setMovies(results);
     } catch (err) {
       console.error(err);
@@ -64,7 +61,6 @@ export default function AdminDashboard() {
     loadMovies(activeTab);
   }, [activeTab]);
 
-  // Добавление / редактирование сеанса
   const addOrUpdateSession = async () => {
     if (!selectedMovie || !newSession.time || !newSession.hall || !newSession.price) {
       return showToast("Заполните все обязательные поля!", "error");
@@ -117,7 +113,6 @@ export default function AdminDashboard() {
 
   const deleteSession = async (id) => {
     if (!window.confirm('Удалить этот сеанс?')) return;
-
     try {
       await api.delete(`/api/sessions/${id}`);
       showToast("Сеанс удалён");
@@ -144,6 +139,10 @@ export default function AdminDashboard() {
     setEditingSession(null);
   };
 
+  const handleImageError = (e) => {
+    e.target.src = 'https://via.placeholder.com/500x750/27272a/ffffff?text=Нет+постера';
+  };
+
   return (
     <div className="min-h-screen bg-zinc-950 text-white p-6">
       <div className="max-w-7xl mx-auto">
@@ -159,11 +158,7 @@ export default function AdminDashboard() {
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
-              className={`px-6 py-2 rounded-full transition ${
-                activeTab === tab.key
-                  ? 'bg-red-600 text-white'
-                  : 'bg-zinc-800 hover:bg-zinc-700'
-              }`}
+              className={`px-6 py-2 rounded-full transition ${activeTab === tab.key ? 'bg-red-600' : 'bg-zinc-800 hover:bg-zinc-700'}`}
             >
               {tab.label}
             </button>
@@ -179,16 +174,13 @@ export default function AdminDashboard() {
               <div
                 key={movie.id}
                 onClick={() => selectMovie(movie)}
-                className={`cursor-pointer rounded-2xl overflow-hidden border transition ${
-                  selectedMovie?.id === movie.id
-                    ? 'border-red-500 ring-2 ring-red-500/50'
-                    : 'border-zinc-800 hover:border-zinc-600'
-                }`}
+                className={`cursor-pointer rounded-2xl overflow-hidden border transition ${selectedMovie?.id === movie.id ? 'border-red-500 ring-2 ring-red-500/50' : 'border-zinc-800 hover:border-zinc-600'}`}
               >
                 <img
                   src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
                   alt={movie.title}
                   className="w-full aspect-2/3 object-cover"
+                  onError={handleImageError}
                 />
                 <div className="p-3">
                   <div className="font-semibold line-clamp-2">{movie.title}</div>

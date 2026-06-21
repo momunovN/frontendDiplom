@@ -16,20 +16,21 @@ export default function MovieDetail() {
   const [showSeatMap, setShowSeatMap] = useState(false);
   const [selectedSeats, setSelectedSeats] = useState([]);
 
-  // Загрузка фильма и сеансов
+  const handleImageError = (e) => {
+    e.target.src = 'https://via.placeholder.com/780x439/27272a/ffffff?text=Нет+постера';
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
         setError(null);
 
-        // Фильм через прокси
         const movieRes = await api.get(`/api/tmdb/movie/${id}`);
         setMovie(movieRes.data);
 
-        // Сеансы этого фильма
         const sessionsRes = await api.get('/api/sessions');
-        const movieSessions = sessionsRes.data.filter(s => s.movieId == id);
+        const movieSessions = sessionsRes.data.filter(s => String(s.movieId) === String(id));
         setSessions(movieSessions);
 
       } catch (err) {
@@ -69,7 +70,7 @@ export default function MovieDetail() {
 
       // Обновляем сеансы
       const sessionsRes = await api.get('/api/sessions');
-      const movieSessions = sessionsRes.data.filter(s => s.movieId == id);
+      const movieSessions = sessionsRes.data.filter(s => String(s.movieId) === String(id));
       setSessions(movieSessions);
 
     } catch (error) {
@@ -89,12 +90,10 @@ export default function MovieDetail() {
 
   if (error || !movie) {
     return (
-      <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
-        <div className="text-center">
+      <div className="min-h-screen bg-zinc-950 flex items-center justify-center text-center">
+        <div>
           <p className="text-red-400 mb-4">{error || "Фильм не найден"}</p>
-          <button onClick={() => navigate(-1)} className="text-red-500 hover:underline">
-            Вернуться назад
-          </button>
+          <button onClick={() => navigate(-1)} className="text-red-500 hover:underline">Вернуться назад</button>
         </div>
       </div>
     );
@@ -102,24 +101,21 @@ export default function MovieDetail() {
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-12">
-      <button
-        onClick={() => navigate(-1)}
-        className="mb-8 flex items-center gap-2 text-zinc-400 hover:text-white"
-      >
+      <button onClick={() => navigate(-1)} className="mb-8 flex items-center gap-2 text-zinc-400 hover:text-white">
         ← Назад
       </button>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-        {/* Постер */}
+        {/* Постер / Backdrop */}
         <div>
           <img
             src={`https://image.tmdb.org/t/p/w780${movie.backdrop_path || movie.poster_path}`}
             alt={movie.title}
             className="rounded-3xl w-full shadow-2xl"
+            onError={handleImageError}
           />
         </div>
 
-        {/* Информация */}
         <div>
           <h1 className="text-5xl font-bold mb-4">{movie.title}</h1>
           <p className="text-zinc-400 mb-6">
@@ -139,11 +135,7 @@ export default function MovieDetail() {
                     setShowSeatMap(false);
                     setSelectedSeats([]);
                   }}
-                  className={`w-full p-6 rounded-3xl border-2 text-left transition-all ${
-                    selectedSession?._id === session._id
-                      ? "border-red-600 bg-red-950/30"
-                      : "border-zinc-700 hover:border-zinc-500"
-                  }`}
+                  className={`w-full p-6 rounded-3xl border-2 text-left transition-all ${selectedSession?._id === session._id ? 'border-red-600 bg-red-950/30' : 'border-zinc-700 hover:border-zinc-500'}`}
                 >
                   <div className="flex justify-between items-center">
                     <div>
@@ -164,7 +156,6 @@ export default function MovieDetail() {
             )}
           </div>
 
-          {/* Бронирование */}
           {selectedSession && (
             <div className="mt-10">
               <button
