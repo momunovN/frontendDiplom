@@ -17,7 +17,8 @@ export default function MovieDetail() {
   const [selectedSeats, setSelectedSeats] = useState([]);
 
   const handleImageError = (e) => {
-    e.target.src = 'https://via.placeholder.com/780x439/27272a/ffffff?text=Нет+постера';
+    e.target.src =
+      "https://via.placeholder.com/780x439/27272a/ffffff?text=Нет+постера";
   };
 
   useEffect(() => {
@@ -29,10 +30,11 @@ export default function MovieDetail() {
         const movieRes = await api.get(`/api/tmdb/movie/${id}`);
         setMovie(movieRes.data);
 
-        const sessionsRes = await api.get('/api/sessions');
-        const movieSessions = sessionsRes.data.filter(s => String(s.movieId) === String(id));
+        const sessionsRes = await api.get("/api/sessions");
+        const movieSessions = sessionsRes.data.filter(
+          (s) => String(s.movieId) === String(id),
+        );
         setSessions(movieSessions);
-
       } catch (err) {
         console.error(err);
         setError("Не удалось загрузить информацию о фильме");
@@ -57,24 +59,34 @@ export default function MovieDetail() {
     }
 
     try {
-      await api.post("/api/bookings", {
-        sessionId: selectedSession._id,
-        seats: selectedSeats,
-        totalPrice: selectedSeats.length * selectedSession.price,
-      });
+      await api.post(
+        "/api/bookings",
+        {
+          sessionId: selectedSession._id,
+          seats: selectedSeats,
+          totalPrice: selectedSeats.length * selectedSession.price,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, // ← Вот это важно!
+          },
+        },
+      );
 
       alert(`Забронировано ${selectedSeats.length} мест!`);
       setSelectedSeats([]);
       setShowSeatMap(false);
       setSelectedSession(null);
 
-      // Обновляем сеансы
-      const sessionsRes = await api.get('/api/sessions');
-      const movieSessions = sessionsRes.data.filter(s => String(s.movieId) === String(id));
+      // Обновляем список сеансов
+      const sessionsRes = await api.get("/api/sessions");
+      const movieSessions = sessionsRes.data.filter(
+        (s) => String(s.movieId) === String(id),
+      );
       setSessions(movieSessions);
-
     } catch (error) {
       console.error(error);
+
       if (error.response?.status === 401) {
         alert("Сессия истекла. Пожалуйста, войдите заново.");
         navigate("/login");
@@ -85,7 +97,11 @@ export default function MovieDetail() {
   };
 
   if (loading) {
-    return <div className="min-h-screen bg-zinc-950 flex items-center justify-center text-2xl">Загрузка...</div>;
+    return (
+      <div className="min-h-screen bg-zinc-950 flex items-center justify-center text-2xl">
+        Загрузка...
+      </div>
+    );
   }
 
   if (error || !movie) {
@@ -93,7 +109,12 @@ export default function MovieDetail() {
       <div className="min-h-screen bg-zinc-950 flex items-center justify-center text-center">
         <div>
           <p className="text-red-400 mb-4">{error || "Фильм не найден"}</p>
-          <button onClick={() => navigate(-1)} className="text-red-500 hover:underline">Вернуться назад</button>
+          <button
+            onClick={() => navigate(-1)}
+            className="text-red-500 hover:underline"
+          >
+            Вернуться назад
+          </button>
         </div>
       </div>
     );
@@ -101,7 +122,10 @@ export default function MovieDetail() {
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-12">
-      <button onClick={() => navigate(-1)} className="mb-8 flex items-center gap-2 text-zinc-400 hover:text-white">
+      <button
+        onClick={() => navigate(-1)}
+        className="mb-8 flex items-center gap-2 text-zinc-400 hover:text-white"
+      >
         ← Назад
       </button>
 
@@ -119,7 +143,7 @@ export default function MovieDetail() {
         <div>
           <h1 className="text-5xl font-bold mb-4">{movie.title}</h1>
           <p className="text-zinc-400 mb-6">
-            {movie.release_date?.substring(0, 4)} • {movie.runtime || '?'} мин
+            {movie.release_date?.substring(0, 4)} • {movie.runtime || "?"} мин
           </p>
           <p className="text-zinc-300 mb-10">{movie.overview}</p>
 
@@ -135,7 +159,7 @@ export default function MovieDetail() {
                     setShowSeatMap(false);
                     setSelectedSeats([]);
                   }}
-                  className={`w-full p-6 rounded-3xl border-2 text-left transition-all ${selectedSession?._id === session._id ? 'border-red-600 bg-red-950/30' : 'border-zinc-700 hover:border-zinc-500'}`}
+                  className={`w-full p-6 rounded-3xl border-2 text-left transition-all ${selectedSession?._id === session._id ? "border-red-600 bg-red-950/30" : "border-zinc-700 hover:border-zinc-500"}`}
                 >
                   <div className="flex justify-between items-center">
                     <div>
@@ -143,16 +167,21 @@ export default function MovieDetail() {
                       <div className="text-zinc-400">{session.hall}</div>
                     </div>
                     <div className="text-right">
-                      <div className="text-2xl font-semibold">{session.price} ₽</div>
+                      <div className="text-2xl font-semibold">
+                        {session.price} ₽
+                      </div>
                       <div className="text-emerald-400 text-sm">
-                        Свободно: {session.totalSeats - (session.bookedSeats || 0)}
+                        Свободно:{" "}
+                        {session.totalSeats - (session.bookedSeats || 0)}
                       </div>
                     </div>
                   </div>
                 </button>
               ))
             ) : (
-              <p className="text-zinc-400 py-10">Для этого фильма пока нет сеансов</p>
+              <p className="text-zinc-400 py-10">
+                Для этого фильма пока нет сеансов
+              </p>
             )}
           </div>
 
@@ -179,7 +208,8 @@ export default function MovieDetail() {
                   onClick={handleBookSeats}
                   className="w-full mt-6 bg-green-600 hover:bg-green-700 py-5 rounded-2xl text-xl font-bold"
                 >
-                  Забронировать ({selectedSeats.length} мест) — {selectedSeats.length * selectedSession.price} ₽
+                  Забронировать ({selectedSeats.length} мест) —{" "}
+                  {selectedSeats.length * selectedSession.price} ₽
                 </button>
               )}
             </div>
