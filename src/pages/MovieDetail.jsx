@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-
 import api from "../api/axios";
-
 import SeatMap from "../components/SeatMap";
 
 export default function MovieDetail() {
@@ -12,18 +10,28 @@ export default function MovieDetail() {
   const [movie, setMovie] = useState(null);
   const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const [selectedSession, setSelectedSession] = useState(null);
   const [showSeatMap, setShowSeatMap] = useState(false);
   const [selectedSeats, setSelectedSeats] = useState([]);
 
+  // Загрузка фильма и сеансов
   useEffect(() => {
-    const fetchMovie = async () => {
+    const fetchData = async () => {
       try {
         setLoading(true);
-        // Было: api.get(`https://api.themoviedb.org/3/movie/${id}` ...
+        setError(null);
+
+        // Фильм через прокси
         const movieRes = await api.get(`/api/tmdb/movie/${id}`);
         setMovie(movieRes.data);
+
+        // Сеансы этого фильма
+        const sessionsRes = await api.get('/api/sessions');
+        const movieSessions = sessionsRes.data.filter(s => s.movieId == id);
+        setSessions(movieSessions);
+
       } catch (err) {
         console.error(err);
         setError("Не удалось загрузить информацию о фильме");
@@ -40,7 +48,7 @@ export default function MovieDetail() {
       return alert("Выберите места!");
     }
 
-    const token = localStorage.getItem("token"); // ← достаём токен
+    const token = localStorage.getItem("token");
     if (!token) {
       alert("Войдите в аккаунт");
       navigate("/login");
@@ -48,27 +56,22 @@ export default function MovieDetail() {
     }
 
     try {
-      await api.post(
-        "/api/bookings",
-        {
-          sessionId: selectedSession._id,
-          seats: selectedSeats, // массив строк, например ["5-12", "5-13"]
-          totalPrice: selectedSeats.length * selectedSession.price,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`, // ← обязательно отправляем токен
-          },
-        },
-      );
+      await api.post("/api/bookings", {
+        sessionId: selectedSession._id,
+        seats: selectedSeats,
+        totalPrice: selectedSeats.length * selectedSession.price,
+      });
 
-      alert(`✅ Забронировано ${selectedSeats.length} мест!`);
+      alert(`Забронировано ${selectedSeats.length} мест!`);
       setSelectedSeats([]);
       setShowSeatMap(false);
       setSelectedSession(null);
 
-      // Можно обновить список сеансов, чтобы показать актуальное количество свободных мест
-      // window.location.reload(); // или перезапросить сеансы
+      // Обновляем сеансы
+      const sessionsRes = await api.get('/api/sessions');
+      const movieSessions = sessionsRes.data.filter(s => s.movieId == id);
+      setSessions(movieSessions);
+
     } catch (error) {
       console.error(error);
       if (error.response?.status === 401) {
@@ -80,9 +83,22 @@ export default function MovieDetail() {
     }
   };
 
-  if (loading)
-    return <div className="text-center py-20 text-2xl">Загрузка...</div>;
-  if (!movie) return <div>Фильм не найден</div>;
+  if (loading) {
+    return <div className="min-h-screen bg-zinc-950 flex items-center justify-center text-2xl">Загрузка...</div>;
+  }
+
+  if (error || !movie) {
+    return (
+      <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-400 mb-4">{error || "Фильм не найден"}</p>
+          <button onClick={() => navigate(-1)} className="text-red-500 hover:underline">
+            Вернуться назад
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-12">
@@ -94,6 +110,7 @@ export default function MovieDetail() {
       </button>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+        {/* Постер */}
         <div>
           <img
             src={`https://image.tmdb.org/t/p/w780${movie.backdrop_path || movie.poster_path}`}
@@ -102,10 +119,11 @@ export default function MovieDetail() {
           />
         </div>
 
+        {/* Информация */}
         <div>
           <h1 className="text-5xl font-bold mb-4">{movie.title}</h1>
           <p className="text-zinc-400 mb-6">
-            {movie.release_date?.substring(0, 4)} • {movie.runtime} мин
+            {movie.release_date?.substring(0, 4)} • {movie.runtime || '?'} мин
           </p>
           <p className="text-zinc-300 mb-10">{movie.overview}</p>
 
@@ -131,31 +149,22 @@ export default function MovieDetail() {
                     <div>
                       <div className="text-3xl font-bold">{session.time}</div>
                       <div className="text-zinc-400">{session.hall}</div>
-                      {session.date && (
-                        <div className="text-sm text-zinc-500">
-                          {session.date}
-                        </div>
-                      )}
                     </div>
                     <div className="text-right">
-                      <div className="text-2xl font-semibold">
-                        {session.price} ₽
-                      </div>
+                      <div className="text-2xl font-semibold">{session.price} ₽</div>
                       <div className="text-emerald-400 text-sm">
-                        Свободно:{" "}
-                        {session.totalSeats - (session.bookedSeats || 0)}
+                        Свободно: {session.totalSeats - (session.bookedSeats || 0)}
                       </div>
                     </div>
                   </div>
                 </button>
               ))
             ) : (
-              <p className="text-zinc-400 py-10">
-                Для этого фильма пока нет сеансов
-              </p>
+              <p className="text-zinc-400 py-10">Для этого фильма пока нет сеансов</p>
             )}
           </div>
 
+          {/* Бронирование */}
           {selectedSession && (
             <div className="mt-10">
               <button
@@ -179,8 +188,7 @@ export default function MovieDetail() {
                   onClick={handleBookSeats}
                   className="w-full mt-6 bg-green-600 hover:bg-green-700 py-5 rounded-2xl text-xl font-bold"
                 >
-                  Забронировать ({selectedSeats.length} мест) —{" "}
-                  {selectedSeats.length * selectedSession.price} ₽
+                  Забронировать ({selectedSeats.length} мест) — {selectedSeats.length * selectedSession.price} ₽
                 </button>
               )}
             </div>

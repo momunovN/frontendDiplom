@@ -2,9 +2,6 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 
-
-
-// Маппинг жанров TMDB (можно расширить)
 const genreMap = {
   28: "Экшн",
   12: "Приключения",
@@ -30,23 +27,25 @@ const genreMap = {
 export default function Movies() {
   const [moviesByGenre, setMoviesByGenre] = useState({});
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchMovies = async () => {
       try {
-        // Теперь идём через свой бэкенд
         const res = await api.get('/api/tmdb/now_playing');
-
         const movies = res.data.results || [];
 
-        // Группировка по жанрам (твой код оставь)
         const grouped = {};
         movies.forEach(movie => {
           if (!movie.genre_ids || movie.genre_ids.length === 0) return;
+
           movie.genre_ids.forEach(genreId => {
             const genreName = genreMap[genreId];
             if (!genreName) return;
-            if (!grouped[genreName]) grouped[genreName] = [];
+
+            if (!grouped[genreName]) {
+              grouped[genreName] = [];
+            }
             grouped[genreName].push(movie);
           });
         });
@@ -63,7 +62,11 @@ export default function Movies() {
   }, []);
 
   if (loading) {
-    return <div className="text-center py-20 text-2xl">Загрузка фильмов...</div>;
+    return (
+      <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
+        <div className="text-2xl text-zinc-400">Загрузка фильмов...</div>
+      </div>
+    );
   }
 
   return (
@@ -78,7 +81,7 @@ export default function Movies() {
             <h2 className="text-3xl font-semibold mb-6 text-red-500">{genre}</h2>
 
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-6">
-              {movies.slice(0, 12).map((movie) => (   // ограничиваем до 12 фильмов на жанр
+              {movies.slice(0, 12).map((movie) => (
                 <div
                   key={movie.id}
                   onClick={() => navigate(`/movie/${movie.id}`)}
@@ -88,7 +91,7 @@ export default function Movies() {
                     <img
                       src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
                       alt={movie.title}
-                      className="w-full h-70 object-cover group-hover:opacity-90 transition"
+                      className="w-full aspect-2/3 object-cover group-hover:opacity-90 transition"
                     />
                     <div className="absolute bottom-0 left-0 right-0 bg-linear-to-t from-black/80 to-transparent p-3">
                       <h3 className="font-semibold text-lg line-clamp-2 text-white">{movie.title}</h3>
