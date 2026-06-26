@@ -45,43 +45,52 @@ export default function MovieDetail() {
   }, [id]);
 
   const handleBookSeats = async () => {
-    if (!selectedSession || selectedSeats.length === 0) {
-      return alert("Выберите места!");
-    }
+  if (!selectedSession || selectedSeats.length === 0) {
+    return alert("Выберите места!");
+  }
 
-    const token = localStorage.getItem("token");
-    if (!token) {
-      alert("Войдите в аккаунт");
-      navigate("/login");
-      return;
-    }
+  const token = localStorage.getItem("token");
+  if (!token) {
+    alert("Войдите в аккаунт");
+    navigate("/login");
+    return;
+  }
 
-    try {
-      await api.post("/api/bookings", {
+  try {
+    await api.post(
+      "/api/bookings",
+      {
         sessionId: selectedSession._id,
         seats: selectedSeats,
         totalPrice: selectedSeats.length * selectedSession.price,
-      });
-
-      alert(`Забронировано ${selectedSeats.length} мест!`);
-      setSelectedSeats([]);
-      setShowSeatMap(false);
-      setSelectedSession(null);
-
-      const sessionsRes = await api.get('/api/sessions');
-      const movieSessions = sessionsRes.data.filter(s => String(s.movieId) === String(id));
-      setSessions(movieSessions);
-
-    } catch (error) {
-      console.error(error);
-      if (error.response?.status === 401) {
-        alert("Сессия истекла. Пожалуйста, войдите заново.");
-        navigate("/login");
-      } else {
-        alert(error.response?.data?.message || "Ошибка бронирования");
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,   // ← ЭТО БЫЛО ПРОПУЩЕНО
+        },
       }
+    );
+
+    alert(`Забронировано ${selectedSeats.length} мест!`);
+    setSelectedSeats([]);
+    setShowSeatMap(false);
+    setSelectedSession(null);
+
+    // Обновляем список сеансов
+    const sessionsRes = await api.get('/api/sessions');
+    const movieSessions = sessionsRes.data.filter(s => String(s.movieId) === String(id));
+    setSessions(movieSessions);
+
+  } catch (error) {
+    console.error(error);
+    if (error.response?.status === 401) {
+      alert("Сессия истекла. Пожалуйста, войдите заново.");
+      navigate("/login");
+    } else {
+      alert(error.response?.data?.message || "Ошибка бронирования");
     }
-  };
+  }
+};
 
   if (loading) {
     return <div className="min-h-screen bg-zinc-950 flex items-center justify-center text-2xl">Загрузка...</div>;
