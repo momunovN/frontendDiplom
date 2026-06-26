@@ -133,7 +133,7 @@ export default function MovieDetail() {
         {/* Постер / Backdrop */}
         <div>
           <img
-            src={`https://image.tmdb.org/t/p/w780${movie.backdrop_path || movie.poster_path}`}
+            src={`${import.meta.env.VITE_API_URL}/api/tmdb/image/w500${movie.poster_path}`}
             alt={movie.title}
             className="rounded-3xl w-full shadow-2xl"
             onError={handleImageError}

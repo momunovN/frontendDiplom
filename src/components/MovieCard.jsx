@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 
 export default function MovieCard({ movie }) {
   const posterUrl = movie.poster_path 
-    ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` 
+    ? `${import.meta.env.VITE_API_URL}/api/tmdb/image/w500${movie.poster_path}` 
     : 'https://via.placeholder.com/500x750/27272a/ffffff?text=Нет+постера';
 
   const handleImageError = (e) => {

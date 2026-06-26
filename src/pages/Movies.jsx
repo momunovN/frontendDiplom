@@ -72,7 +72,7 @@ export default function Movies() {
             {movies.slice(0, 12).map(movie => (
               <div key={movie.id} onClick={() => navigate(`/movie/${movie.id}`)} className="cursor-pointer">
                 <img
-                  src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+                  src={`${import.meta.env.VITE_API_URL}/api/tmdb/image/w500${movie.poster_path}`}
                   alt={movie.title}
                   className="w-full aspect-2/3 object-cover rounded-2xl"
                   onError={handleImageError}

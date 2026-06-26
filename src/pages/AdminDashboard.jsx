@@ -177,7 +177,7 @@ export default function AdminDashboard() {
                 className={`cursor-pointer rounded-2xl overflow-hidden border transition ${selectedMovie?.id === movie.id ? 'border-red-500 ring-2 ring-red-500/50' : 'border-zinc-800 hover:border-zinc-600'}`}
               >
                 <img
-                  src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+                  src={`${import.meta.env.VITE_API_URL}/api/tmdb/image/w500${movie.poster_path}`}
                   alt={movie.title}
                   className="w-full aspect-2/3 object-cover"
                   onError={handleImageError}

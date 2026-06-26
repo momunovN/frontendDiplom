@@ -9,7 +9,7 @@ export default function RainCarousel({ movies }) {
     <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
       {movies.map((movie, index) => {
         const posterUrl = movie.poster_path 
-          ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` 
+          ? `${import.meta.env.VITE_API_URL}/api/tmdb/image/w500${movie.poster_path}}` 
           : 'https://via.placeholder.com/500x750/27272a/ffffff?text=Нет+постера';
 
         return (
