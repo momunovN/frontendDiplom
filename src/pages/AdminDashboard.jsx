@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
-import api from '../api/axios';
-import Toast from '../components/Toast';
+import { useState, useEffect } from "react";
+import api from "../api/axios";
+import Toast from "../components/Toast";
 
 export default function AdminDashboard() {
-  const [activeTab, setActiveTab] = useState('popular');
+  const [activeTab, setActiveTab] = useState("popular");
   const [movies, setMovies] = useState([]);
   const [selectedMovie, setSelectedMovie] = useState(null);
   const [editingSession, setEditingSession] = useState(null);
@@ -12,21 +12,21 @@ export default function AdminDashboard() {
   const [toast, setToast] = useState(null);
 
   const [newSession, setNewSession] = useState({
-    date: new Date().toISOString().split('T')[0],
-    time: '',
-    hall: '',
-    price: '',
-    bookedSeatsList: ''
+    date: new Date().toISOString().split("T")[0],
+    time: "",
+    hall: "",
+    price: "",
+    bookedSeatsList: "",
   });
 
-  const showToast = (message, type = 'success') => {
+  const showToast = (message, type = "success") => {
     setToast({ message, type });
     setTimeout(() => setToast(null), 3000);
   };
 
   const loadSessions = async () => {
     try {
-      const res = await api.get('/api/sessions');
+      const res = await api.get("/api/sessions");
       setSessions(res.data || []);
     } catch (err) {
       console.error(err);
@@ -36,16 +36,16 @@ export default function AdminDashboard() {
   const loadMovies = async (tab) => {
     setLoading(true);
     try {
-      let endpoint = '';
-      if (tab === 'popular') endpoint = '/api/tmdb/popular';
-      else if (tab === 'new') endpoint = '/api/tmdb/now_playing';
-      else if (tab === 'highRated') endpoint = '/api/tmdb/top_rated';
+      let endpoint = "";
+      if (tab === "popular") endpoint = "/api/tmdb/popular";
+      else if (tab === "new") endpoint = "/api/tmdb/now_playing";
+      else if (tab === "highRated") endpoint = "/api/tmdb/top_rated";
 
       const res = await api.get(endpoint);
       let results = res.data.results || [];
 
-      if (tab === 'highRated') {
-        results = results.filter(m => m.vote_average >= 7.0);
+      if (tab === "highRated") {
+        results = results.filter((m) => m.vote_average >= 7.0);
       }
       setMovies(results);
     } catch (err) {
@@ -62,12 +62,20 @@ export default function AdminDashboard() {
   }, [activeTab]);
 
   const addOrUpdateSession = async () => {
-    if (!selectedMovie || !newSession.time || !newSession.hall || !newSession.price) {
+    if (
+      !selectedMovie ||
+      !newSession.time ||
+      !newSession.hall ||
+      !newSession.price
+    ) {
       return showToast("Заполните все обязательные поля!", "error");
     }
 
     const bookedList = newSession.bookedSeatsList
-      ? newSession.bookedSeatsList.split(',').map(s => s.trim()).filter(Boolean)
+      ? newSession.bookedSeatsList
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean)
       : [];
 
     setLoading(true);
@@ -79,14 +87,14 @@ export default function AdminDashboard() {
         time: newSession.time,
         hall: newSession.hall,
         price: Number(newSession.price),
-        bookedSeatsList: bookedList
+        bookedSeatsList: bookedList,
       };
 
       if (editingSession) {
         await api.put(`/api/sessions/${editingSession._id}`, payload);
         showToast("Сеанс успешно обновлён!");
       } else {
-        await api.post('/api/sessions', payload);
+        await api.post("/api/sessions", payload);
         showToast(`Сеанс для "${selectedMovie.title}" добавлен!`);
       }
 
@@ -103,16 +111,16 @@ export default function AdminDashboard() {
     setEditingSession(session);
     setSelectedMovie({ id: session.movieId, title: session.movieTitle });
     setNewSession({
-      date: session.date || new Date().toISOString().split('T')[0],
+      date: session.date || new Date().toISOString().split("T")[0],
       time: session.time,
       hall: session.hall,
       price: session.price,
-      bookedSeatsList: session.bookedSeatsList?.join(', ') || ''
+      bookedSeatsList: session.bookedSeatsList?.join(", ") || "",
     });
   };
 
   const deleteSession = async (id) => {
-    if (!window.confirm('Удалить этот сеанс?')) return;
+    if (!window.confirm("Удалить этот сеанс?")) return;
 
     try {
       await api.delete(`/api/sessions/${id}`);
@@ -127,11 +135,11 @@ export default function AdminDashboard() {
     setEditingSession(null);
     setSelectedMovie(null);
     setNewSession({
-      date: new Date().toISOString().split('T')[0],
-      time: '',
-      hall: '',
-      price: '',
-      bookedSeatsList: ''
+      date: new Date().toISOString().split("T")[0],
+      time: "",
+      hall: "",
+      price: "",
+      bookedSeatsList: "",
     });
   };
 
@@ -141,25 +149,27 @@ export default function AdminDashboard() {
   };
 
   const handleImageError = (e) => {
-    e.target.src = 'https://picsum.photos/id/1015/500/750';
+    e.target.src = "https://picsum.photos/id/1015/500/750";
   };
 
   return (
     <div className="min-h-screen bg-zinc-950 text-white p-4 sm:p-6">
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-3xl sm:text-4xl font-bold mb-6 sm:mb-8">Админ-панель</h1>
+        <h1 className="text-3xl sm:text-4xl font-bold mb-6 sm:mb-8">
+          Админ-панель
+        </h1>
 
         {/* Табы */}
         <div className="flex flex-wrap gap-2 mb-6">
           {[
-            { key: 'popular', label: 'Популярные' },
-            { key: 'new', label: 'Сейчас в кино' },
-            { key: 'highRated', label: 'Высокий рейтинг' }
+            { key: "popular", label: "Популярные" },
+            { key: "new", label: "Сейчас в кино" },
+            { key: "highRated", label: "Высокий рейтинг" },
           ].map((tab) => (
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
-              className={`px-5 py-2 rounded-full text-sm sm:text-base transition ${activeTab === tab.key ? 'bg-red-600' : 'bg-zinc-800 hover:bg-zinc-700'}`}
+              className={`px-5 py-2 rounded-full text-sm sm:text-base transition ${activeTab === tab.key ? "bg-red-600" : "bg-zinc-800 hover:bg-zinc-700"}`}
             >
               {tab.label}
             </button>
@@ -169,13 +179,15 @@ export default function AdminDashboard() {
         {/* Сетка фильмов */}
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 mb-10">
           {loading ? (
-            <div className="col-span-full text-center py-10 text-zinc-400">Загрузка...</div>
+            <div className="col-span-full text-center py-10 text-zinc-400">
+              Загрузка...
+            </div>
           ) : (
             movies.map((movie) => (
               <div
                 key={movie.id}
                 onClick={() => selectMovie(movie)}
-                className={`cursor-pointer rounded-2xl overflow-hidden border transition ${selectedMovie?.id === movie.id ? 'border-red-500 ring-2 ring-red-500/50' : 'border-zinc-800 hover:border-zinc-600'}`}
+                className={`cursor-pointer rounded-2xl overflow-hidden border transition ${selectedMovie?.id === movie.id ? "border-red-500 ring-2 ring-red-500/50" : "border-zinc-800 hover:border-zinc-600"}`}
               >
                 <img
                   src={`${import.meta.env.VITE_API_URL}/api/tmdb/image/w500${movie.poster_path}`}
@@ -184,9 +196,12 @@ export default function AdminDashboard() {
                   onError={handleImageError}
                 />
                 <div className="p-3">
-                  <div className="font-semibold line-clamp-2 text-sm sm:text-base">{movie.title}</div>
+                  <div className="font-semibold line-clamp-2 text-sm sm:text-base">
+                    {movie.title}
+                  </div>
                   <div className="text-xs sm:text-sm text-zinc-400 mt-1">
-                    {movie.release_date?.slice(0, 4)} • ★ {movie.vote_average?.toFixed(1)}
+                    {movie.release_date?.slice(0, 4)} • ★{" "}
+                    {movie.vote_average?.toFixed(1)}
                   </div>
                 </div>
               </div>
@@ -198,37 +213,96 @@ export default function AdminDashboard() {
         {selectedMovie && (
           <div className="bg-zinc-900 rounded-3xl p-6 sm:p-8 mb-10">
             <h2 className="text-xl sm:text-2xl font-bold mb-6">
-              {editingSession ? 'Редактировать сеанс' : 'Добавить сеанс'} для «{selectedMovie.title}»
+              {editingSession ? "Редактировать сеанс" : "Добавить сеанс"} для «
+              {selectedMovie.title}»
             </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
               <div>
-                <label className="block text-sm text-zinc-400 mb-1.5">Дата</label>
-                <input type="date" value={newSession.date} onChange={(e) => setNewSession({ ...newSession, date: e.target.value })} className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-sm" />
+                <label className="block text-sm text-zinc-400 mb-1.5">
+                  Дата
+                </label>
+                <input
+                  type="date"
+                  value={newSession.date}
+                  onChange={(e) =>
+                    setNewSession({ ...newSession, date: e.target.value })
+                  }
+                  className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-sm"
+                />
               </div>
               <div>
-                <label className="block text-sm text-zinc-400 mb-1.5">Время</label>
-                <input type="time" value={newSession.time} onChange={(e) => setNewSession({ ...newSession, time: e.target.value })} className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-sm" />
+                <label className="block text-sm text-zinc-400 mb-1.5">
+                  Время
+                </label>
+                <input
+                  type="time"
+                  value={newSession.time}
+                  onChange={(e) =>
+                    setNewSession({ ...newSession, time: e.target.value })
+                  }
+                  className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-sm"
+                />
               </div>
               <div>
-                <label className="block text-sm text-zinc-400 mb-1.5">Зал</label>
-                <input type="text" value={newSession.hall} onChange={(e) => setNewSession({ ...newSession, hall: e.target.value })} placeholder="Зал 1" className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-sm" />
+                <label className="block text-sm text-zinc-400 mb-1.5">
+                  Зал
+                </label>
+                <input
+                  type="text"
+                  value={newSession.hall}
+                  onChange={(e) =>
+                    setNewSession({ ...newSession, hall: e.target.value })
+                  }
+                  placeholder="Зал 1"
+                  className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-sm"
+                />
               </div>
               <div>
-                <label className="block text-sm text-zinc-400 mb-1.5">Цена (₽)</label>
-                <input type="number" value={newSession.price} onChange={(e) => setNewSession({ ...newSession, price: e.target.value })} placeholder="350" className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-sm" />
+                <label className="block text-sm text-zinc-400 mb-1.5">
+                  Цена (₽)
+                </label>
+                <input
+                  type="number"
+                  value={newSession.price}
+                  onChange={(e) =>
+                    setNewSession({ ...newSession, price: e.target.value })
+                  }
+                  placeholder="350"
+                  className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-sm"
+                />
               </div>
               <div className="md:col-span-2">
-                <label className="block text-sm text-zinc-400 mb-1.5">Забронированные места (через запятую)</label>
-                <input type="text" value={newSession.bookedSeatsList} onChange={(e) => setNewSession({ ...newSession, bookedSeatsList: e.target.value })} placeholder="5-12, 5-13" className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-sm" />
+                <label className="block text-sm text-zinc-400 mb-1.5">
+                  Забронированные места (через запятую)
+                </label>
+                <input
+                  type="text"
+                  value={newSession.bookedSeatsList}
+                  onChange={(e) =>
+                    setNewSession({
+                      ...newSession,
+                      bookedSeatsList: e.target.value,
+                    })
+                  }
+                  placeholder="A-1, H-12"
+                  className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-sm"
+                />
               </div>
             </div>
 
             <div className="flex flex-col sm:flex-row gap-3 mt-8">
-              <button onClick={addOrUpdateSession} disabled={loading} className="flex-1 bg-red-600 hover:bg-red-700 py-3 rounded-xl font-semibold disabled:opacity-50 transition">
-                {editingSession ? 'Сохранить изменения' : 'Добавить сеанс'}
+              <button
+                onClick={addOrUpdateSession}
+                disabled={loading}
+                className="flex-1 bg-red-600 hover:bg-red-700 py-3 rounded-xl font-semibold disabled:opacity-50 transition"
+              >
+                {editingSession ? "Сохранить изменения" : "Добавить сеанс"}
               </button>
-              <button onClick={resetForm} className="flex-1 sm:flex-none px-8 py-3 rounded-xl border border-zinc-700 hover:bg-zinc-800 transition">
+              <button
+                onClick={resetForm}
+                className="flex-1 sm:flex-none px-8 py-3 rounded-xl border border-zinc-700 hover:bg-zinc-800 transition"
+              >
                 Отмена
               </button>
             </div>
@@ -237,10 +311,14 @@ export default function AdminDashboard() {
 
         {/* Таблица сеансов */}
         <div>
-          <h2 className="text-xl sm:text-2xl font-bold mb-6">Все сеансы ({sessions.length})</h2>
+          <h2 className="text-xl sm:text-2xl font-bold mb-6">
+            Все сеансы ({sessions.length})
+          </h2>
 
           {sessions.length === 0 ? (
-            <div className="bg-zinc-900 rounded-2xl p-8 text-center text-zinc-400">Сеансов пока нет</div>
+            <div className="bg-zinc-900 rounded-2xl p-8 text-center text-zinc-400">
+              Сеансов пока нет
+            </div>
           ) : (
             <div className="bg-zinc-900 rounded-2xl overflow-x-auto">
               <table className="w-full min-w-700px">
@@ -255,14 +333,30 @@ export default function AdminDashboard() {
                 </thead>
                 <tbody>
                   {sessions.map((session) => (
-                    <tr key={session._id} className="border-t border-zinc-800 hover:bg-zinc-800/50">
+                    <tr
+                      key={session._id}
+                      className="border-t border-zinc-800 hover:bg-zinc-800/50"
+                    >
                       <td className="p-4 font-medium">{session.movieTitle}</td>
-                      <td className="p-4 text-zinc-300">{new Date(session.date).toLocaleDateString('ru-RU')} • {session.time}</td>
+                      <td className="p-4 text-zinc-300">
+                        {new Date(session.date).toLocaleDateString("ru-RU")} •{" "}
+                        {session.time}
+                      </td>
                       <td className="p-4">{session.hall}</td>
                       <td className="p-4">{session.price} ₽</td>
                       <td className="p-4 text-right space-x-2">
-                        <button onClick={() => editSession(session)} className="px-3 py-1.5 text-sm bg-zinc-700 hover:bg-zinc-600 rounded-lg">Редактировать</button>
-                        <button onClick={() => deleteSession(session._id)} className="px-3 py-1.5 text-sm bg-red-900/70 hover:bg-red-800 rounded-lg">Удалить</button>
+                        <button
+                          onClick={() => editSession(session)}
+                          className="px-3 py-1.5 text-sm bg-zinc-700 hover:bg-zinc-600 rounded-lg"
+                        >
+                          Редактировать
+                        </button>
+                        <button
+                          onClick={() => deleteSession(session._id)}
+                          className="px-3 py-1.5 text-sm bg-red-900/70 hover:bg-red-800 rounded-lg"
+                        >
+                          Удалить
+                        </button>
                       </td>
                     </tr>
                   ))}
