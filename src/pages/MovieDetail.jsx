@@ -17,8 +17,7 @@ export default function MovieDetail() {
   const [selectedSeats, setSelectedSeats] = useState([]);
 
   const handleImageError = (e) => {
-    e.target.src =
-      "https://via.placeholder.com/780x439/27272a/ffffff?text=Нет+постера";
+    e.target.src = 'https://picsum.photos/id/1015/780/439';
   };
 
   useEffect(() => {
@@ -30,11 +29,10 @@ export default function MovieDetail() {
         const movieRes = await api.get(`/api/tmdb/movie/${id}`);
         setMovie(movieRes.data);
 
-        const sessionsRes = await api.get("/api/sessions");
-        const movieSessions = sessionsRes.data.filter(
-          (s) => String(s.movieId) === String(id),
-        );
+        const sessionsRes = await api.get('/api/sessions');
+        const movieSessions = sessionsRes.data.filter(s => String(s.movieId) === String(id));
         setSessions(movieSessions);
+
       } catch (err) {
         console.error(err);
         setError("Не удалось загрузить информацию о фильме");
@@ -59,34 +57,23 @@ export default function MovieDetail() {
     }
 
     try {
-      await api.post(
-        "/api/bookings",
-        {
-          sessionId: selectedSession._id,
-          seats: selectedSeats,
-          totalPrice: selectedSeats.length * selectedSession.price,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`, // ← Вот это важно!
-          },
-        },
-      );
+      await api.post("/api/bookings", {
+        sessionId: selectedSession._id,
+        seats: selectedSeats,
+        totalPrice: selectedSeats.length * selectedSession.price,
+      });
 
       alert(`Забронировано ${selectedSeats.length} мест!`);
       setSelectedSeats([]);
       setShowSeatMap(false);
       setSelectedSession(null);
 
-      // Обновляем список сеансов
-      const sessionsRes = await api.get("/api/sessions");
-      const movieSessions = sessionsRes.data.filter(
-        (s) => String(s.movieId) === String(id),
-      );
+      const sessionsRes = await api.get('/api/sessions');
+      const movieSessions = sessionsRes.data.filter(s => String(s.movieId) === String(id));
       setSessions(movieSessions);
+
     } catch (error) {
       console.error(error);
-
       if (error.response?.status === 401) {
         alert("Сессия истекла. Пожалуйста, войдите заново.");
         navigate("/login");
@@ -97,59 +84,48 @@ export default function MovieDetail() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-zinc-950 flex items-center justify-center text-2xl">
-        Загрузка...
-      </div>
-    );
+    return <div className="min-h-screen bg-zinc-950 flex items-center justify-center text-2xl">Загрузка...</div>;
   }
 
   if (error || !movie) {
     return (
-      <div className="min-h-screen bg-zinc-950 flex items-center justify-center text-center">
+      <div className="min-h-screen bg-zinc-950 flex items-center justify-center text-center px-6">
         <div>
           <p className="text-red-400 mb-4">{error || "Фильм не найден"}</p>
-          <button
-            onClick={() => navigate(-1)}
-            className="text-red-500 hover:underline"
-          >
-            Вернуться назад
-          </button>
+          <button onClick={() => navigate(-1)} className="text-red-500 hover:underline">Вернуться назад</button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-12">
-      <button
-        onClick={() => navigate(-1)}
-        className="mb-8 flex items-center gap-2 text-zinc-400 hover:text-white"
-      >
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+      <button onClick={() => navigate(-1)} className="mb-6 flex items-center gap-2 text-zinc-400 hover:text-white text-sm sm:text-base">
         ← Назад
       </button>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-        {/* Постер / Backdrop */}
-        <div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+        {/* Изображение */}
+        <div className="order-1 lg:order-1">
           <img
-            src={`${import.meta.env.VITE_API_URL}/api/tmdb/image/w500${movie.poster_path}`}
+            src={`${import.meta.env.VITE_API_URL}/api/tmdb/image/w780${movie.backdrop_path || movie.poster_path}`}
             alt={movie.title}
-            className="rounded-3xl w-full shadow-2xl"
+            className="rounded-2xl sm:rounded-3xl w-full shadow-2xl"
             onError={handleImageError}
           />
         </div>
 
-        <div>
-          <h1 className="text-5xl font-bold mb-4">{movie.title}</h1>
-          <p className="text-zinc-400 mb-6">
-            {movie.release_date?.substring(0, 4)} • {movie.runtime || "?"} мин
+        {/* Информация */}
+        <div className="order-2 lg:order-2">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4">{movie.title}</h1>
+          <p className="text-zinc-400 mb-4 sm:mb-6 text-sm sm:text-base">
+            {movie.release_date?.substring(0, 4)} • {movie.runtime || '?'} мин
           </p>
-          <p className="text-zinc-300 mb-10">{movie.overview}</p>
+          <p className="text-zinc-300 mb-8 sm:mb-10 text-sm sm:text-base">{movie.overview}</p>
 
-          <h3 className="text-2xl font-semibold mb-6">Сеансы</h3>
+          <h3 className="text-xl sm:text-2xl font-semibold mb-4 sm:mb-6">Сеансы</h3>
 
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             {sessions.length > 0 ? (
               sessions.map((session) => (
                 <button
@@ -159,37 +135,33 @@ export default function MovieDetail() {
                     setShowSeatMap(false);
                     setSelectedSeats([]);
                   }}
-                  className={`w-full p-6 rounded-3xl border-2 text-left transition-all ${selectedSession?._id === session._id ? "border-red-600 bg-red-950/30" : "border-zinc-700 hover:border-zinc-500"}`}
+                  className={`w-full p-4 sm:p-6 rounded-2xl border-2 text-left transition-all ${selectedSession?._id === session._id ? 'border-red-600 bg-red-950/30' : 'border-zinc-700 hover:border-zinc-500'}`}
                 >
-                  <div className="flex justify-between items-center">
+                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
                     <div>
-                      <div className="text-3xl font-bold">{session.time}</div>
-                      <div className="text-zinc-400">{session.hall}</div>
+                      <div className="text-2xl sm:text-3xl font-bold">{session.time}</div>
+                      <div className="text-zinc-400 text-sm sm:text-base">{session.hall}</div>
                     </div>
-                    <div className="text-right">
-                      <div className="text-2xl font-semibold">
-                        {session.price} ₽
-                      </div>
-                      <div className="text-emerald-400 text-sm">
-                        Свободно:{" "}
-                        {session.totalSeats - (session.bookedSeats || 0)}
+                    <div className="text-left sm:text-right">
+                      <div className="text-xl sm:text-2xl font-semibold">{session.price} ₽</div>
+                      <div className="text-emerald-400 text-xs sm:text-sm">
+                        Свободно: {session.totalSeats - (session.bookedSeats || 0)}
                       </div>
                     </div>
                   </div>
                 </button>
               ))
             ) : (
-              <p className="text-zinc-400 py-10">
-                Для этого фильма пока нет сеансов
-              </p>
+              <p className="text-zinc-400 py-8">Для этого фильма пока нет сеансов</p>
             )}
           </div>
 
+          {/* Бронирование */}
           {selectedSession && (
-            <div className="mt-10">
+            <div className="mt-8 sm:mt-10">
               <button
                 onClick={() => setShowSeatMap(!showSeatMap)}
-                className="w-full bg-red-600 hover:bg-red-700 py-4 rounded-2xl text-xl font-semibold mb-6"
+                className="w-full bg-red-600 hover:bg-red-700 py-3.5 sm:py-4 rounded-2xl text-lg sm:text-xl font-semibold mb-6 transition"
               >
                 {showSeatMap ? "Скрыть схему зала" : "Выбрать места"}
               </button>
@@ -206,10 +178,9 @@ export default function MovieDetail() {
               {selectedSeats.length > 0 && (
                 <button
                   onClick={handleBookSeats}
-                  className="w-full mt-6 bg-green-600 hover:bg-green-700 py-5 rounded-2xl text-xl font-bold"
+                  className="w-full mt-6 bg-green-600 hover:bg-green-700 py-4 sm:py-5 rounded-2xl text-lg sm:text-xl font-bold transition"
                 >
-                  Забронировать ({selectedSeats.length} мест) —{" "}
-                  {selectedSeats.length * selectedSession.price} ₽
+                  Забронировать ({selectedSeats.length} мест) — {selectedSeats.length * selectedSession.price} ₽
                 </button>
               )}
             </div>

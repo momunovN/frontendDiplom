@@ -1,40 +1,39 @@
-import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
 
-import api from '../api/axios';
-import tmdbApi from '../api/tmdb';
-
+import api from "../api/axios";
+import tmdbApi from "../api/tmdb";
 
 export default function Login() {
-  const [formData, setFormData] = useState({ email: '', password: '' });
+  const [formData, setFormData] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
-
+    setError("");
+    window.dispatchEvent(new Event("authChange"));
     try {
-      const response = await api.post('/api/auth/login', {
+      const response = await api.post("/api/auth/login", {
         email: formData.email.trim(),
-        password: formData.password
+        password: formData.password,
       });
 
-      localStorage.setItem('user', JSON.stringify(response.data.user));
-      localStorage.setItem('token', response.data.token);
+      localStorage.setItem("user", JSON.stringify(response.data.user));
+      localStorage.setItem("token", response.data.token);
 
       alert(`✅ Успешный вход! Добро пожаловать, ${response.data.user.name}`);
-      
-      if (response.data.user.role === 'admin') {
-        navigate('/admin');
+
+      if (response.data.user.role === "admin") {
+        navigate("/admin");
       } else {
-        navigate('/profile');
+        navigate("/profile");
       }
     } catch (err) {
       console.error(err);
-      setError(err.response?.data?.message || 'Неверный email или пароль');
+      setError(err.response?.data?.message || "Неверный email или пароль");
     } finally {
       setLoading(false);
     }
@@ -52,7 +51,9 @@ export default function Login() {
             type="email"
             placeholder="Email"
             value={formData.email}
-            onChange={(e) => setFormData({...formData, email: e.target.value})}
+            onChange={(e) =>
+              setFormData({ ...formData, email: e.target.value })
+            }
             className="w-full bg-zinc-800 border border-zinc-700 rounded-2xl px-5 py-4 focus:outline-none focus:border-red-600"
             required
           />
@@ -60,22 +61,27 @@ export default function Login() {
             type="password"
             placeholder="Пароль"
             value={formData.password}
-            onChange={(e) => setFormData({...formData, password: e.target.value})}
+            onChange={(e) =>
+              setFormData({ ...formData, password: e.target.value })
+            }
             className="w-full bg-zinc-800 border border-zinc-700 rounded-2xl px-5 py-4 focus:outline-none focus:border-red-600"
             required
           />
 
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             disabled={loading}
             className="w-full bg-red-600 hover:bg-red-700 py-4 rounded-2xl text-xl font-semibold transition disabled:opacity-70"
           >
-            {loading ? 'Вход...' : 'Войти'}
+            {loading ? "Вход..." : "Войти"}
           </button>
         </form>
 
         <p className="text-center text-zinc-400 mt-6">
-          Нет аккаунта? <Link to="/register" className="text-red-500 hover:underline">Зарегистрироваться</Link>
+          Нет аккаунта?{" "}
+          <Link to="/register" className="text-red-500 hover:underline">
+            Зарегистрироваться
+          </Link>
         </p>
       </div>
     </div>
