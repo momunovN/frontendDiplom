@@ -7,11 +7,13 @@ export default function Home() {
   const [popularMovies, setPopularMovies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [heroError, setHeroError] = useState(false);
 
   const fetchData = async () => {
     try {
       setLoading(true);
       setError(null);
+      setHeroError(false);
 
       // Сеансы
       const sessionsRes = await api.get('/api/sessions');
@@ -24,7 +26,7 @@ export default function Home() {
 
       setSessions(futureSessions);
 
-      // Популярные фильмы через прокси бэкенда
+      // Популярные фильмы через прокси
       const tmdbRes = await api.get('/api/tmdb/popular');
       const popular = tmdbRes.data.results?.slice(0, 18) || [];
       setPopularMovies(popular);
@@ -41,6 +43,11 @@ export default function Home() {
     fetchData();
   }, []);
 
+  // Обработчик ошибки hero
+  const handleHeroError = () => {
+    setHeroError(true);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
@@ -55,7 +62,7 @@ export default function Home() {
         <p className="text-red-400 text-xl mb-6">{error}</p>
         <button 
           onClick={fetchData}
-          className="px-8 py-3 bg-red-600 hover:bg-red-700 rounded-2xl font-semibold transition"
+          className="px-8 py-3 bg-red-600 hover:bg-red-700 rounded-2xl font-semibold"
         >
           Попробовать снова
         </button>
@@ -63,23 +70,32 @@ export default function Home() {
     );
   }
 
-  // Hero background (с fallback)
-  const heroStyle = popularMovies.length > 0 && popularMovies[0].backdrop_path
-    ? {
-        backgroundImage: `linear-gradient(rgba(0,0,0,0.65), rgba(0,0,0,0.85)), url('https://image.tmdb.org/t/p/original${popularMovies[0].backdrop_path}')`
-      }
-    : {
-        backgroundImage: 'linear-gradient(rgba(0,0,0,0.9), rgba(0,0,0,0.95))'
-      };
+  // Выбираем backdrop
+  const heroBackdrop = popularMovies.length > 0 ? popularMovies[0].backdrop_path : null;
 
   return (
     <div className="min-h-screen bg-zinc-950 text-white">
       {/* Hero Section */}
-      <div 
-        className="relative h-[72vh] flex items-center justify-center bg-cover bg-center"
-        style={heroStyle}
-      >
-        <div className="text-center z-10 px-6 max-w-4xl">
+      <div className="relative h-[72vh] flex items-center justify-center overflow-hidden">
+        
+        {/* Фоновое изображение */}
+        {heroBackdrop && !heroError ? (
+          <img
+            src={`https://image.tmdb.org/t/p/original${heroBackdrop}`}
+            alt="Hero background"
+            className="absolute inset-0 w-full h-full object-cover"
+            onError={handleHeroError}
+          />
+        ) : (
+          // Fallback фон
+          <div className="absolute inset-0 bg-linear-to-b from-zinc-950 via-zinc-900 to-black" />
+        )}
+
+        {/* Тёмный оверлей */}
+        <div className="absolute inset-0 bg-black/60" />
+
+        {/* Контент */}
+        <div className="relative z-10 text-center px-6 max-w-4xl">
           <h1 className="text-6xl md:text-7xl font-bold mb-6 tracking-tighter">KinoBook</h1>
           <p className="text-xl md:text-2xl text-zinc-200 mb-10">
             Новинки кино • Удобное бронирование • Лучшие места
@@ -122,7 +138,6 @@ export default function Home() {
                 >
                   <div className="flex-1">
                     <h3 className="text-xl font-semibold mb-3 line-clamp-2">{session.movieTitle}</h3>
-                    
                     <div className="space-y-1 text-sm text-zinc-400">
                       <p>{new Date(session.date).toLocaleDateString('ru-RU')}</p>
                       <p>{session.time} • {session.hall}</p>
@@ -131,10 +146,9 @@ export default function Home() {
 
                   <div className="mt-6 flex items-center justify-between">
                     <div>
-                      <span className="text-2xl font-bold text-white">{session.price}</span>
+                      <span className="text-2xl font-bold">{session.price}</span>
                       <span className="text-zinc-400 ml-1">₽</span>
                     </div>
-                    
                     <a 
                       href={`/movie/${session.movieId}`}
                       className="px-6 py-2.5 bg-red-600 hover:bg-red-700 rounded-xl text-sm font-semibold transition"
@@ -147,7 +161,6 @@ export default function Home() {
             </div>
           )}
         </section>
-
       </div>
     </div>
   );
